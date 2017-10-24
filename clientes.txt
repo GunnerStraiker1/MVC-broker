@@ -1,0 +1,1 @@
+{"Fecha":"Fri Oct 20 09:27:37 CDT 2017","Producto":"zucaritas","IP":"192.168.167.2","Servicio":"registrarUsuario"}
