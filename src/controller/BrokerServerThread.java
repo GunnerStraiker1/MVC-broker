@@ -41,7 +41,6 @@ public class BrokerServerThread extends Thread {
             }
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
         } catch (ParseException ex) {
             Logger.getLogger(BrokerServerThread.class.getName()).log(Level.SEVERE, null, ex);
         }

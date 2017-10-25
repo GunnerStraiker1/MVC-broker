@@ -3,12 +3,7 @@ import java.io.*;
  
 public class BrokerMultiServer {
     public static void main(String[] args) throws IOException {
- 
-    /*if (args.length != 1) {
-        System.err.println("Usage: java KKMultiServer <port number>");
-        System.exit(1);
-    }*/
- 
+  
         int portNumber = 4444;
         boolean listening = true;
          

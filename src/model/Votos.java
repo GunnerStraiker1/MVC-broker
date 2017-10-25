@@ -17,8 +17,8 @@ import org.json.simple.parser.ParseException;
  * @author Victor Perera
  */
 public class Votos {
-    protected String nombreProducto;
-    protected int noVotos;
+    private String nombreProducto;
+    private int noVotos;
     
     public JSONObject crearJSON(String servicio, String producto, String Fecha) {
         JSONObject json =null;
@@ -32,15 +32,48 @@ public class Votos {
         } catch (UnknownHostException | ParseException ex) {
             ex.getMessage();
         }
+        
+        return json;
+    }
+    public JSONObject registrarCliente(String servicio) {
+        JSONObject json =null;
+        try {
+            String ip = String.valueOf(InetAddress.getLocalHost().getHostAddress());
+            String str ="{\"Servicio\":\""+servicio+"\",\"IP\":\""+ip+"\"}";
+            JSONParser parser = new JSONParser();
+            
+            json = (JSONObject)parser.parse(str);
+            
+        } catch (UnknownHostException | ParseException ex) {
+            ex.getMessage();
+        }
         return json;
     }
     
     public String[] desencriptarJSON(JSONObject json){
         String[] datosVoto =  new String[2];
         datosVoto[0] = json.get("Producto").toString();
-        datosVoto[1] = json.get("Valor").toString();
+        datosVoto[1] = json.get("Resultado").toString();
         return datosVoto;
     }
+
+    public String getNombreProducto() {
+        return nombreProducto;
+    }
+
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
+    }
+
+    public int getNoVotos() {
+        return noVotos;
+    }
+
+    public void setNoVotos(int noVotos) {
+        this.noVotos = noVotos;
+    }
+    
+    
     
 
 }

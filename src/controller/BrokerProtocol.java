@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -22,21 +23,14 @@ public class BrokerProtocol {
  
     private int state = WAITING;
     private int currentJoke = 0;
- 
-    /*private String[] clues = { "Turnip", "Little Old Lady", "Atch", "Who", "Who" };
-    private String[] answers = { "Turnip the heat, it's cold in here!",
-                                 "I didn't know you could yodel!",
-                                 "Bless you!",
-                                 "Is there an owl in here?",
-                                 "Is there an echo in here?" };*/
- 
+
     public JSONObject processInput(JSONObject theInput) throws UnknownHostException {
-        JSONObject theOutput = null;
+        JSONObject jsonConverted,theOutput = null;
         JSONParser parser = new JSONParser();
         String ip = String.valueOf(InetAddress.getLocalHost().getHostAddress());
         Date date = new Date();
         if(state==WAITING){
-           String json = "{\"Servicio\":\"registrar\", \"IP\":\""+ip+"\"}";
+           String json = "{\"Servicio\":\"Iniciar Broker\", \"IP\":\""+ip+"\"}";
             try {
                 theOutput=(JSONObject) parser.parse(json);
             } catch (ParseException ex) {
@@ -45,10 +39,21 @@ public class BrokerProtocol {
            state=SENTKNOCKKNOCK;
        }
         else if(state==SENTKNOCKKNOCK){
-            if (theInput.get("Servicio").equals("votar")) {
-                String json = "{\"Servicio\":\"contar\", \"resultado\":\"5\"}";
+            if (theInput.get("Servicio").equals("Registrar")) {
+                registrarUsuario(theInput.get("IP").toString());
+                String json = "{\"Servicio\":\"Iniciar Broker\", \"IP\":\"" + ip + "\"}";
                 try {
-                    theOutput=(JSONObject) parser.parse(json);
+                    theOutput = (JSONObject) parser.parse(json);
+                } catch (ParseException ex) {
+                    ex.getMessage();
+                }
+            }
+            else if (theInput.get("Servicio").equals("votar")) {
+                String json = "{\"Servicio\":\"votar\", \"Producto\":\""+(String)theInput.get("Producto")+"\",\"Datos\":\""+ 
+                        (String)theInput.get("Fecha")+" "+(String)theInput.get("IP") +"\"}";
+                try {
+                    jsonConverted=(JSONObject) parser.parse(json);
+                    theOutput = conectarServidor(jsonConverted);
                 } catch (ParseException ex) {
                     ex.getMessage();
                 }
@@ -62,41 +67,6 @@ public class BrokerProtocol {
                 }
            }
         }
-        /*if (state == WAITING) {
-            theOutput = "Knock! Knock!";
-            state = SENTKNOCKKNOCK;
-        } else if (state == SENTKNOCKKNOCK) {
-            if (theInput.equalsIgnoreCase("Who's there?")) {
-                theOutput = clues[currentJoke];
-                state = SENTCLUE;
-            } else {
-                theOutput = "You're supposed to say \"Who's there?\"! " +
-                "Try again. Knock! Knock!";
-            }
-        } else if (state == SENTCLUE) {
-            if (theInput.equalsIgnoreCase(clues[currentJoke] + " who?")) {
-                theOutput = answers[currentJoke] + " Want another? (y/n)";
-                state = ANOTHER;
-            } else {
-                theOutput = "You're supposed to say \"" + 
-                clues[currentJoke] + 
-                " who?\"" + 
-                "! Try again. Knock! Knock!";
-                state = SENTKNOCKKNOCK;
-            }
-        } else if (state == ANOTHER) {
-            if (theInput.equalsIgnoreCase("y")) {
-                theOutput = "Knock! Knock!";
-                if (currentJoke == (NUMJOKES - 1))
-                    currentJoke = 0;
-                else
-                    currentJoke++;
-                state = SENTKNOCKKNOCK;
-            } else {
-                theOutput = "Bye.";
-                state = WAITING;
-            }
-        }*/
         return theOutput;
     }
     public JSONObject conectarServidor(JSONObject peticion){
@@ -151,6 +121,29 @@ public class BrokerProtocol {
         }
         
         return resultado;
+    }
+    
+    public void registrarUsuario(String ip){
+        FileWriter fichero = null;
+        PrintWriter pw = null;
+        try
+        {
+            fichero = new FileWriter("Usuarios.txt",true);
+            pw = new PrintWriter(fichero);
+            pw.println(ip +new Date().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+           try {
+           // Nuevamente aprovechamos el finally para 
+           // asegurarnos que se cierra el fichero.
+           if (null != fichero)
+              fichero.close();
+           } catch (Exception e2) {
+              e2.printStackTrace();
+           }
+        }
     }
     
 }

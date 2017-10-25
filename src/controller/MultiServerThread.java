@@ -13,10 +13,11 @@ public class MultiServerThread extends Thread {
     private Socket socket = null;
 
     public MultiServerThread(Socket socket) {
-        super("KKMultiServerThread");
+        super("MultiServerThread");
         this.socket = socket;
     }
     
+    @Override
     public void run() {
 
         try (
@@ -32,15 +33,14 @@ public class MultiServerThread extends Thread {
             outputLine = kkp.processInput(null);
             out.println(outputLine);
 
-            while ((inputLine = (JSONObject)parser.parse(in.readLine())) != null) {
+            while ((inputLine=(JSONObject)parser.parse(in.readLine())) != null) {
                 outputLine = kkp.processInput(inputLine);
                 out.println(outputLine);
-                if (outputLine.equals("Bye"))
+                if (outputLine.toString().equals("{\"Servicio\":\"cerrar\"}"))
                     break;
             }
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
         } catch (ParseException ex) {
             Logger.getLogger(MultiServerThread.class.getName()).log(Level.SEVERE, null, ex);
         }

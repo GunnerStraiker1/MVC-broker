@@ -8,13 +8,10 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,14 +30,20 @@ public class ControlGral implements ActionListener{
     protected Votos votaciones;
     protected vistaUsuario vista;
     protected Socket kkSocket;
+    protected ControlPastel controlPie ;
+    protected ControlBarras controlBar;
+    private String[] datos;
     PrintWriter out;
     BufferedReader in;
+
     BufferedReader stdIn;
     JSONObject fromServer; 
     JSONObject fromUser = null;
     public ControlGral(Votos votaciones, vistaUsuario vista) {
         this.votaciones = votaciones;
         this.vista = vista;
+        this.controlPie= new ControlPastel();
+        this.controlBar= new ControlBarras();
         try {
             this.kkSocket= new Socket("localhost",4444);
         } catch (IOException ex) {
@@ -54,10 +57,9 @@ public class ControlGral implements ActionListener{
         vista.lbChoco.setText("ChocoKrispis");
         vista.lbFroot.setText("Froot Loops");
         vista.lbZuca.setText("Zucaritas");
-        
         iniciarInterfaz();
-        ControlPastel controlPie = new ControlPastel();
-        ControlBarras controlBar = new ControlBarras();
+        
+        
         try{
             out = new PrintWriter(kkSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(kkSocket.getInputStream()));
@@ -68,6 +70,7 @@ public class ControlGral implements ActionListener{
         
         mensajesCliente(kkSocket);
         
+        
     }
     public void iniciarInterfaz(){
         vista.setTitle("Votacion");
@@ -75,6 +78,7 @@ public class ControlGral implements ActionListener{
         vista.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         vista.setLocationRelativeTo(null);
         vista.setVisible(true);
+        
     }
     
    
@@ -87,7 +91,13 @@ public class ControlGral implements ActionListener{
                 if (this.fromServer.toJSONString().equals("{\"Servicio\":\"cerrar\"}")){
                     System.exit(0);;   
                 }
-                System.out.println("Este se puede manipular: " + this.fromServer);
+                
+                if(!this.fromServer.get("Servicio").equals("Iniciar Broker")){
+                    System.out.println(this.fromServer.toString());
+                    this.datos= votaciones.desencriptarJSON(this.fromServer);
+                    this.controlPie.actualizarGrafica(this.datos[0], this.datos[1]);
+                    this.controlBar.actualizarGrafica(this.datos[0], this.datos[1]);
+                }
             }
             
         } catch (IOException ex) {
@@ -100,6 +110,11 @@ public class ControlGral implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.btnZuca) {
+            fromUser = votaciones.registrarCliente("Registrar");
+            if (fromUser != null) {
+                    System.out.println("Client: " + fromUser );
+                    out.println(fromUser);
+                }
             Date date = new Date();
             fromUser =  votaciones.crearJSON("votar", "Zucaritas", date.toString());
                 if (fromUser != null) {
@@ -110,6 +125,11 @@ public class ControlGral implements ActionListener{
                 
         }
         else if(e.getSource() == vista.btnFroot){
+            fromUser = votaciones.registrarCliente("Registrar");
+            if (fromUser != null) {
+                    System.out.println("Client: " + fromUser );
+                    out.println(fromUser);
+                }
             Date date = new Date();
             fromUser = votaciones.crearJSON("votar", "FrootLoops", date.toString());
                 if (fromUser != null) {
@@ -119,6 +139,11 @@ public class ControlGral implements ActionListener{
         }
         
         else if(e.getSource() == vista.btnChoco){
+            fromUser = votaciones.registrarCliente("Registrar");
+            if (fromUser != null) {
+                    System.out.println("Client: " + fromUser );
+                    out.println(fromUser);
+                }
             Date date = new Date();
             fromUser = votaciones.crearJSON("votar", "ChocoKrispis", date.toString());
                 if (fromUser != null) {

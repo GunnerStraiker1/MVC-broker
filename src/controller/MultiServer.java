@@ -5,11 +5,6 @@ import java.io.*;
 public class MultiServer {
     public static void main(String[] args) throws IOException {
  
-    /*if (args.length != 1) {
-        System.err.println("Usage: java KKMultiServer <port number>");
-        System.exit(1);
-    }*/
- 
         int portNumber = 8888;
         boolean listening = true;
          
